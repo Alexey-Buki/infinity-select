@@ -11,7 +11,7 @@
             const infinitySelectElement = document.getElementById('infinity-select');
             let selectedValue = '';
             let open = false;
-            let optionHeight = 0;
+            let optionHeight = 10;
             let countOptions = 0;
             let loading = false;
 
@@ -34,7 +34,11 @@
                     })
 
                     countOptions = infinitySelectElement.querySelectorAll('option').length;
-                    optionHeight = infinitySelectElement.querySelector('option').getClientRects()[0].height;
+                    try {
+                        optionHeight = infinitySelectElement.querySelector('option').getClientRects()[0].height;
+                    } catch (error) {
+                        console.warn('height', error);
+                    }
 
                     loading = false;
                 }, immediately ? 1 : 2000); 
@@ -44,7 +48,8 @@
                 infinitySelectElement.size = open ? 5 : 1;
             }
 
-            const onClick = () => {
+            const onClick = (event) => {
+                event.preventDefault();
                 open = !open;
                 toggleSelect(open);
             };
@@ -63,6 +68,9 @@
             };
 
             infinitySelectElement.addEventListener('click', onClick);
+            infinitySelectElement.addEventListener('mousedown', (event) => {
+                open || event.preventDefault();
+            });
             infinitySelectElement.addEventListener('scroll', onScroll);
             infinitySelectElement.addEventListener('change', onChange);
 
