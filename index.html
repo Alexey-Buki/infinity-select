@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Infinity select</title>
+    </head>
+    <body>
+        <select id="infinity-select" multiple="true" size="1" style="width: 100%"></select>
+
+        <script>
+            const infinitySelectElement = document.getElementById('infinity-select');
+            let selectedValue = '';
+            let open = false;
+            let optionHeight = 0;
+            let countOptions = 0;
+            let loading = false;
+
+            const loadNewItems = (offset) => {
+                return new Array(50).fill({}).map((item, index) => {
+                    return { key: offset + index, value: offset + index }
+                }).map((item) => {
+                    const option = document.createElement('option');
+                    option.value = item.key;
+                    option.innerText = item.value;
+                    return option;
+                })
+            };
+
+            const insertNewOptions = (options, immediately) => {
+
+                setTimeout(() => {
+                    options.forEach((option) => {
+                        infinitySelectElement.appendChild(option);
+                    })
+
+                    countOptions = infinitySelectElement.querySelectorAll('option').length;
+                    optionHeight = infinitySelectElement.querySelector('option').getClientRects()[0].height;
+
+                    loading = false;
+                }, immediately ? 1 : 2000); 
+            }
+
+            const toggleSelect = (open) => {
+                infinitySelectElement.size = open ? 5 : 1;
+            }
+
+            const onClick = () => {
+                open = !open;
+                toggleSelect(open);
+            };
+
+            const onScroll = (event) => {
+                console.log('onScroll', event);
+
+                if (!loading && (infinitySelectElement.scrollTop - 50) < countOptions * optionHeight) {
+                    loading = true;
+                    insertNewOptions(loadNewItems(countOptions));
+                }
+            };
+
+            const onChange = (event) => {
+                console.log('onChange', event);
+            };
+
+            infinitySelectElement.addEventListener('click', onClick);
+            infinitySelectElement.addEventListener('scroll', onScroll);
+            infinitySelectElement.addEventListener('change', onChange);
+
+            insertNewOptions(loadNewItems(countOptions), true);
+        </script>
+    </body>
+</html>
